@@ -41,7 +41,7 @@ Token Lexer::gettok() {
         if (res == "extern") {
             return Token(tok_extern);
         }
-        if (res == "EOF") {
+        if (res[0] == EOF) {
             return Token(tok_eof);
         }
         return Token(tok_identifier, res);
@@ -50,7 +50,7 @@ Token Lexer::gettok() {
     if (isdigit(last_char) || last_char == '.') { // number: [0-9.]+
         std::string num_str;
         num_str.push_back(last_char);
-        while (!st.empty() && (st.top() || st.top() == '.')) {
+        while (!st.empty() && (isdigit(st.top()) || st.top() == '.')) {
             last_char = getStrChar();
             num_str.push_back(last_char);
         }

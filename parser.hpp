@@ -8,12 +8,15 @@ class Parser {
 Lexer lexer;
 Token curToken;
 std::unordered_map<char, int> binopPrecedence;
+std::shared_ptr<IRConstructor> irConst;
 
 public:
     Parser(const std::string& input) : lexer(input), curToken(lexer.gettok()) {
         binopPrecedence.insert({'+', 10});
         binopPrecedence.insert({'-', 20});
         binopPrecedence.insert({'*', 30});
+
+        irConst = std::make_shared<IRConstructor>();
     }
 
     int parse();

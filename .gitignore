@@ -1,3 +1,4 @@
 *.o
 compiler
 .DS_Store
+.vscode

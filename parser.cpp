@@ -14,7 +14,7 @@ std::unique_ptr<ExprAST> LogError(const std::string s) {
 
 int Parser::GetOperatorPrecedence() {
     char c = curToken.identifier[0];
-    if (isascii(c) && binopPrecedence.contains(c)) {
+    if (isascii(c) && binopPrecedence.find(c) != binopPrecedence.end()) {
         return binopPrecedence[c];
     }
     return -1;
@@ -46,7 +46,7 @@ std::unique_ptr<ExprAST> Parser::ParseBinOpRHS(int exprPrecedence, std::unique_p
         }
 
         // Merge LHS/RHS.
-        lhs = std::make_unique<BinaryExprAST>(binOp, std::move(lhs), std::move(rhs));
+        lhs = std::make_unique<BinaryExprAST>(binOp, std::move(lhs), std::move(rhs), irConst);
     }
 }
 
@@ -71,7 +71,7 @@ std::unique_ptr<ExprAST> Parser::ParseIdentifierExpr() {
 
     if (curToken.identifier != "(") {
         // not a function call but rather a variable
-        return std::make_unique<VariableExprAST>(id_name);
+        return std::make_unique<VariableExprAST>(id_name, irConst);
     }
 
     // parse Function Call
@@ -89,18 +89,16 @@ std::unique_ptr<ExprAST> Parser::ParseIdentifierExpr() {
         }
         NextToken();
     }
-    return std::make_unique<CallExprAST>(id_name, std::move(args)); 
+    return std::make_unique<CallExprAST>(id_name, std::move(args), irConst); 
 }
 
 std::unique_ptr<ExprAST> Parser::ParseNumberExpr() {
     double num = curToken.number_value;
     NextToken();
-    return std::make_unique<NumberExprAST>(num);
+    return std::make_unique<NumberExprAST>(num, irConst);
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePrimary() {
-    // return ParseNumberExpr();
-    // std::cout << "Called Parse Primary" << std::endl;
     switch(curToken.type) {
         case tok_number:
             return ParseNumberExpr();
@@ -147,7 +145,7 @@ std::unique_ptr<PrototypeAST> Parser::ParseProto() {
         return LogErrorP("Expected ')' to end prototype");
     }
     NextToken(); // drop closing ')' and get next token
-    return std::make_unique<PrototypeAST>(functionName, std::move(argNames));
+    return std::make_unique<PrototypeAST>(functionName, std::move(argNames), irConst);
 }
 
 std::unique_ptr<FunctionAST> Parser::ParseDefinition() {
@@ -158,7 +156,7 @@ std::unique_ptr<FunctionAST> Parser::ParseDefinition() {
     }
 
     if (auto exp = ParseExpression()) {
-        return std::make_unique<FunctionAST>(std::move(proto), std::move(exp));
+        return std::make_unique<FunctionAST>(std::move(proto), std::move(exp), irConst);
     }
     return nullptr;
 }
@@ -169,7 +167,12 @@ std::unique_ptr<PrototypeAST> Parser::ParseExtern() {
 }
 
 void Parser::HandleDefinition() {
-    if (ParseDefinition()) {
+    if (auto fnAST = ParseDefinition()) {
+        if (auto *fnIR = fnAST->codegen()) {
+            std::cout << "Read function definition" << std::endl;
+            fnIR->print(llvm::errs());
+            std::cout << std::endl;
+        }
         std::cout << "Parsed Definiton" << std::endl;
     } else {
         std::cout << "Failed to parse definition" << std::endl;
@@ -178,8 +181,12 @@ void Parser::HandleDefinition() {
 }
 
 void Parser::HandleExtern() {
-    if (ParseExtern()) {
-        std::cout << "Parsed Extern" << std::endl;
+    if (auto protoAST = ParseExtern()) {
+        if (auto *extIR = protoAST->codegen()){
+            std::cout << "Parsed Extern" << std::endl;
+            extIR->print(llvm::errs()); 
+            std::cout << std::endl;
+        }
     } else {
         std::cout << "Failed to parse extern" << std::endl;
         NextToken(); 
@@ -187,8 +194,12 @@ void Parser::HandleExtern() {
 }
 
 void Parser::HandleTopLevelExpression() {
-    if (ParseExpression()) {
-        std::cout << "Parsed top level expression" << std::endl;
+    if (auto fnAST = ParseExpression()) {
+        if (auto *fnIR = fnAST->codegen()) {
+            std::cout << "Parsed top level expression" << std::endl;
+            fnIR->print(llvm::errs());
+            std::cout << std::endl;
+        }
     } else {
         std::cout << "Failed to parse top level expression" << std::endl;
         NextToken();
