@@ -135,7 +135,12 @@ llvm::Function* IRConstructor::visit(FunctionAST& funcAST) {
 
     if (llvm::Value *retV = funcAST.getBody().codegen(*this)) {
         builder->CreateRet(retV);
+        // Verify Function Correctness
         llvm::verifyFunction(*func);
+
+        // std::cout << "here" << std::endl;
+        // Optimize Function
+        FPM->run(*func, *FAM);
 
         return func;
     } else {
