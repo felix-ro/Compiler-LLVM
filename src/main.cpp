@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-#include "parser.hpp"
+#include "Parser.hpp"
 
 
 int main(int argc, char **argv) {

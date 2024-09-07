@@ -19,17 +19,17 @@ $(EXEC): $(OBJS) $(BUILD_DIR)/main.o
 	$(CXX) $(OFLAGS) $(FLAGS) $(OBJS) $(BUILD_DIR)/main.o -o $(EXEC)
 
 # Compile each source file into an object file in the build directory
-$(BUILD_DIR)/utils.o: $(SRC_DIR)/utils.cpp $(SRC_DIR)/utils.hpp | $(BUILD_DIR)
-	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/utils.cpp -o $(BUILD_DIR)/utils.o
+$(BUILD_DIR)/utils.o: $(SRC_DIR)/Utils.cpp $(SRC_DIR)/Utils.hpp | $(BUILD_DIR)
+	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/Utils.cpp -o $(BUILD_DIR)/utils.o
 
-$(BUILD_DIR)/lexer.o: $(SRC_DIR)/lexer.cpp $(SRC_DIR)/lexer.hpp | $(BUILD_DIR)
-	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/lexer.cpp -o $(BUILD_DIR)/lexer.o
+$(BUILD_DIR)/lexer.o: $(SRC_DIR)/Lexer.cpp $(SRC_DIR)/Lexer.hpp | $(BUILD_DIR)
+	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/Lexer.cpp -o $(BUILD_DIR)/lexer.o
 
-$(BUILD_DIR)/ast.o: $(SRC_DIR)/ast.cpp $(SRC_DIR)/lexer.hpp | $(BUILD_DIR)
-	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/ast.cpp -o $(BUILD_DIR)/ast.o
+$(BUILD_DIR)/ast.o: $(SRC_DIR)/AST.cpp $(SRC_DIR)/AST.hpp | $(BUILD_DIR)
+	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/AST.cpp -o $(BUILD_DIR)/ast.o
 
-$(BUILD_DIR)/parser.o: $(SRC_DIR)/parser.cpp $(SRC_DIR)/lexer.hpp | $(BUILD_DIR)
-	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/parser.cpp -o $(BUILD_DIR)/parser.o
+$(BUILD_DIR)/parser.o: $(SRC_DIR)/Parser.cpp $(SRC_DIR)/Parser.hpp | $(BUILD_DIR)
+	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/Parser.cpp -o $(BUILD_DIR)/parser.o
 
 $(BUILD_DIR)/irconstructor.o: $(SRC_DIR)/IRConstructor.cpp $(SRC_DIR)/IRConstructor.hpp | $(BUILD_DIR)
 	$(CXX) $(OFLAGS) $(FLAGS) -c $(SRC_DIR)/IRConstructor.cpp -o $(BUILD_DIR)/irconstructor.o

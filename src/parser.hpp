@@ -1,8 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "lexer.hpp"
-#include "ast.hpp"
+#include "Lexer.hpp"
+#include "AST.hpp"
 #include "IRConstructor.hpp"
 
 class Parser {

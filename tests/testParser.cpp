@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/parser.hpp"
+#include "../src/Parser.hpp"
 
 
 TEST(ParserTest, Numeric) {

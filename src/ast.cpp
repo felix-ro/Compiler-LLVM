@@ -1,5 +1,5 @@
-#include "ast.hpp"
-#include "utils.hpp"
+#include "AST.hpp"
+#include "Utils.hpp"
 
 #include <iostream>
 

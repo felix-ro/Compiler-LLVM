@@ -1,6 +1,6 @@
 #include "IRConstructor.hpp"
 
-#include "utils.hpp"
+#include "Utils.hpp"
 
 llvm::Value* NumberExprAST::codegen(IRConstructor& visitor) {
     return visitor.visit(*this);
@@ -24,6 +24,40 @@ llvm::Function* PrototypeAST::codegen(IRConstructor& visitor) {
 
 llvm::Function* FunctionAST::codegen(IRConstructor& visitor) {
     return visitor.visit(*this);
+}
+
+IRConstructor::IRConstructor() {
+    namedValues = std::map<std::string, llvm::Value*>(); 
+    context = std::make_unique<llvm::LLVMContext>();
+    module = std::make_unique<llvm::Module>("jitcompile", *context);
+    builder = std::make_unique<llvm::IRBuilder<>>(*context);
+    // module->setDataLayout()
+
+    /* Analysis Managers */ 
+    FPM = std::make_unique<llvm::FunctionPassManager>();
+    LAM = std::make_unique<llvm::LoopAnalysisManager>(); 
+    FAM = std::make_unique<llvm::FunctionAnalysisManager>();
+    CGAM = std::make_unique<llvm::CGSCCAnalysisManager>();
+    MAM = std::make_unique<llvm::ModuleAnalysisManager>();
+    PIC = std::make_unique<llvm::PassInstrumentationCallbacks>();
+
+    SI = std::make_unique<llvm::StandardInstrumentations>(*context, /* DebugLogging */ true);
+    SI->registerCallbacks(*PIC, MAM.get());
+
+    /* ----- Transformation Passes ------ */
+    /* Peephole optimizations */ 
+    FPM->addPass(llvm::InstCombinePass()); 
+    /* Reassociate scalars (2 + 4 + x == x + 2 + 3) */
+    FPM->addPass(llvm::ReassociatePass());
+    /* Global Value Numbering (GVN) performs Common Subexpression Elimination (CSE) */
+    FPM->addPass(llvm::GVNPass());
+    /* Simplify the control flow graph (deleting unreachable blocks, etc). */
+    FPM->addPass(llvm::SimplifyCFGPass());
+    
+    llvm::PassBuilder pb;
+    pb.registerModuleAnalyses(*MAM);
+    pb.registerFunctionAnalyses(*FAM);
+    pb.crossRegisterProxies(*LAM, *FAM, *CGAM, *MAM);
 }
 
 llvm::Value* IRConstructor::visit(NumberExprAST& numExpr) {
