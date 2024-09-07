@@ -13,9 +13,9 @@ std::shared_ptr<IRConstructor> irConst;
 
 public:
     Parser(const std::string& input) : lexer(input), curToken(lexer.gettok()) {
-        binopPrecedence.insert({'+', 10});
-        binopPrecedence.insert({'-', 20});
-        binopPrecedence.insert({'*', 30});
+        binopPrecedence.emplace('+', 10);
+        binopPrecedence.emplace('-', 20);
+        binopPrecedence.emplace('*', 30);
 
         irConst = std::make_shared<IRConstructor>();
     }
