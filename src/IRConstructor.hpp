@@ -49,5 +49,7 @@ public:
     llvm::Value* visit(CallExprAST& callExp);
     llvm::Function* visit(PrototypeAST& protoAST);
     llvm::Function* visit(FunctionAST& funcAST);
+
+    llvm::Module& getModule() const;
 };
 #endif // IRCONSTRUCTOR_H

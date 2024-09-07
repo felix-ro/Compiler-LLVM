@@ -1,5 +1,15 @@
 #include "Parser.hpp"
 
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/TargetParser/Host.h"
+#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/LegacyPassManager.h"
+
+
 #include <iostream>
 
 std::unique_ptr<PrototypeAST> LogErrorP(const std::string s) {
@@ -210,12 +220,21 @@ void Parser::NextToken() {
     curToken = lexer.gettok();
 }
 
+/* 
+We need to split AST and IR construction
+
+- add pretty printing
+- make everything modular
+*/
 int Parser::parse() {
+    bool run = true; 
+
     /// top ::= definition | external | expression | ';'
-    while (true) {
+    while (run) {
         switch (curToken.type) {
         case tok_eof:
-            return 0;
+            run = false; 
+            break;
         case tok_def:
             HandleDefinition();
             break;
@@ -224,8 +243,65 @@ int Parser::parse() {
             break;
         default:
             HandleTopLevelExpression();
-            return 0;
+            run = false; 
+            break;
         }
     }
-    return -1;
+
+
+    // THIS SHOUDL NOT BE HERE CLEAN THIS UP FELIX
+    std::cout << "IR Generated" << std::endl;
+
+    // Initialize the target registry etc.
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+
+    auto targetTriple = llvm::sys::getDefaultTargetTriple();
+
+    std::string error;
+    auto target = llvm::TargetRegistry::lookupTarget(targetTriple, error);
+
+    // Print an error and exit if we couldn't find the requested target.
+    // This generally occurs if we've forgotten to initialise the
+    // TargetRegistry or we have a bogus target triple.
+    if (!target) {
+        llvm::errs() << error;
+        return 1;
+    }
+
+    auto cpu = "generic";
+    auto features = "";
+
+    llvm::TargetOptions opt;
+    auto targetMachine = target->createTargetMachine(
+        targetTriple, cpu, features, opt, llvm::Reloc::PIC_);
+
+    irConst->getModule().setDataLayout(targetMachine->createDataLayout());
+
+    auto fileName = "output.o";
+    std::error_code erroCode;
+    llvm::raw_fd_ostream dest(fileName, erroCode, llvm::sys::fs::OF_None);
+    
+    if (erroCode) {
+        llvm::errs() << "Could not open file: " << erroCode.message();
+        return 1;
+    }
+
+    llvm::legacy::PassManager pass;
+    auto fileType = llvm::CodeGenFileType::ObjectFile;
+
+    if (targetMachine->addPassesToEmitFile(pass, dest, nullptr, fileType)) {
+        llvm::errs() << "TheTargetMachine can't emit a file of this type";
+        return 1;
+    }
+
+    pass.run(irConst->getModule());
+    dest.flush();
+
+    llvm::outs() << "Wrote " << fileName << "\n";
+
+    return 0;
 }

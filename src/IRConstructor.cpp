@@ -182,3 +182,7 @@ llvm::Function* IRConstructor::visit(FunctionAST& funcAST) {
         return nullptr;
     }
 }
+
+llvm::Module& IRConstructor::getModule() const {
+    return *module;
+}
