@@ -29,7 +29,6 @@ private:
     std::map<std::string, llvm::Value*> namedValues;
     std::unique_ptr<llvm::LLVMContext> context;
     std::unique_ptr<llvm::IRBuilder<>> builder;
-    std::unique_ptr<llvm::Module> module;
 
     // Optimization
     std::unique_ptr<llvm::FunctionPassManager> FPM;
@@ -41,6 +40,8 @@ private:
     std::unique_ptr<llvm::StandardInstrumentations> SI;
 
 public:
+    std::unique_ptr<llvm::Module> module;
+
     IRConstructor();
 
     llvm::Value* visit(NumberExprAST& numExpr);
@@ -51,5 +52,6 @@ public:
     llvm::Function* visit(FunctionAST& funcAST);
 
     llvm::Module& getModule() const;
+    llvm::LLVMContext& getContext() const;
 };
 #endif // IRCONSTRUCTOR_H

@@ -1,0 +1,1 @@
+#define TMP_OBJECT_FILES_DIR "tests/tmp_object_files"

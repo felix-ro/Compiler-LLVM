@@ -21,6 +21,7 @@ public:
     }
 
     int parse();
+    std::shared_ptr<IRConstructor> GetIRConstructor();
 
 private: 
     void NextToken();

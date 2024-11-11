@@ -185,3 +185,7 @@ llvm::Function* IRConstructor::visit(FunctionAST& funcAST) {
 llvm::Module& IRConstructor::getModule() const {
     return *module;
 }
+
+llvm::LLVMContext& IRConstructor::getContext() const {
+    return *context;
+}
