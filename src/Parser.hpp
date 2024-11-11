@@ -6,10 +6,10 @@
 #include "IRConstructor.hpp"
 
 class Parser {
-Lexer lexer;
-Token curToken;
-std::unordered_map<char, int> binopPrecedence;
-std::shared_ptr<IRConstructor> irConst;
+    Lexer lexer;
+    Token curToken;
+    std::unordered_map<char, int> binopPrecedence;
+    std::shared_ptr<IRConstructor> irConst;
 
 public:
     Parser(const std::string& input) : lexer(input), curToken(lexer.gettok()) {
