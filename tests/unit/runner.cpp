@@ -6,6 +6,7 @@
 #include "../../include/Constants.hpp"
 
 int main(int argc, char ** argv) {
+    // This should be run during the setup of the test environment
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();

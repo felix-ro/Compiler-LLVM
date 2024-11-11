@@ -1,12 +1,17 @@
 #include "../include/Utils.hpp"
 #include <iostream>
 
+// Object File Compilation
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/TargetParser/Host.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/IR/LegacyPassManager.h"
+
+// JIT
+#include "llvm/ExecutionEngine/ExecutionEngine.h"
+#include "llvm/ExecutionEngine/MCJIT.h"
 
 llvm::Value * LogErrorV(const std::string error) {
     std::cout << "Error: " << error << std::endl;
@@ -65,3 +70,25 @@ int CompileToObjectFile(std::shared_ptr<IRConstructor> irConst, std::string file
     llvm::outs() << "Wrote " << fileName << "\n";
     return 0;
 } 
+
+llvm::GenericValue RunParsedFunction(std::shared_ptr<IRConstructor> irConst, const std::string functionName) {
+
+    std::string errorStr;
+    llvm::ExecutionEngine *executionEngine = 
+        llvm::EngineBuilder(std::move(irConst->module))
+            .setErrorStr(&errorStr)
+            .setOptLevel(llvm::CodeGenOptLevel::None)
+            .create();
+
+    if (!executionEngine) {
+        llvm::errs() << "Failed to construct ExecutionEngine: " << errorStr << "\n";
+    }
+
+    llvm::Function *func = executionEngine->FindFunctionNamed("test");
+    if (!func) {
+        llvm::errs() << "Function not found in module!\n";
+    }
+
+    std::vector<llvm::GenericValue> noArgs;
+    return executionEngine->runFunction(func, noArgs);
+}

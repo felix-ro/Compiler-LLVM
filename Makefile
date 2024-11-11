@@ -47,13 +47,13 @@ GTEST_INC = -I$(GTEST_DIR)/include
 GTEST_LIB = -L$(GTEST_DIR)/lib -lgtest -lgtest_main -pthread
 GTEST_RPATH = -Wl,-rpath,$(GTEST_DIR)/lib
 
-TEST_OBJS = $(BUILD_DIR)/testParser.o 
+TEST_OBJS = $(BUILD_DIR)/testArithmeticOperations.o 
 
 test: $(OBJS) $(TEST_OBJS) $(BUILD_DIR)/runner.o
 	$(CXX) $(OFLAGS) $(FLAGS) $(GTEST_LIB) $(GTEST_RPATH) $(OBJS) $(TEST_OBJS) $(BUILD_DIR)/runner.o -o $(BUILD_DIR)/test-runner
 
-$(BUILD_DIR)/testParser.o: $(UNIT_TEST_DIR)/testParser.cpp
-	$(CXX) $(OFLAGS)  $(FLAGS) $(GTEST_INC) -c $(UNIT_TEST_DIR)/testParser.cpp -o $(BUILD_DIR)/testParser.o
+$(BUILD_DIR)/testArithmeticOperations.o: $(UNIT_TEST_DIR)/testArithmeticOperations.cpp
+	$(CXX) $(OFLAGS)  $(FLAGS) $(GTEST_INC) -c $(UNIT_TEST_DIR)/testArithmeticOperations.cpp -o $(BUILD_DIR)/testArithmeticOperations.o
 
 $(BUILD_DIR)/runner.o: $(UNIT_TEST_DIR)/runner.cpp | $(BUILD_DIR)
 	$(CXX) $(OFLAGS) $(FLAGS) $(GTEST_INC) -c $(UNIT_TEST_DIR)/runner.cpp -o $(BUILD_DIR)/runner.o
