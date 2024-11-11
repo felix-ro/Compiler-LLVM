@@ -1,6 +1,5 @@
-#include "IRConstructor.hpp"
-
-#include "Utils.hpp"
+#include "../include/IRConstructor.hpp"
+#include "../include/Utils.hpp"
 
 llvm::Value* NumberExprAST::codegen(IRConstructor& visitor) {
     return visitor.visit(*this);

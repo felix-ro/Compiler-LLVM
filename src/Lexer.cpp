@@ -1,4 +1,4 @@
-#include "Lexer.hpp"
+#include "../include/Lexer.hpp"
 
 #include <cctype>
 #include <iostream>
